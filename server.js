@@ -1,7 +1,7 @@
 // server.js
 const express = require('express');
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 5000;
 const db = require('./database');
 
 // Configure Express
@@ -91,6 +91,6 @@ app.post('/delete/:id', (req, res) => {
 
 
 // Start server
-app.listen(port, () => {
-    console.log(`Server running at http://localhost:${port}`);
+app.listen(port, '0.0.0.0', () => {
+    console.log(`Server running at http://0.0.0.0:${port}`);
 });
