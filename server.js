@@ -26,15 +26,15 @@ app.get('/', (req, res) => {
 
 // 2. CREATE: Add a new employee (C)
 app.post('/add', (req, res) => {
-    const { name, department, salary } = req.body;
+    const { name, department, salary, email } = req.body;
     
     // Basic validation
     if (!name || !department) {
         return res.status(400).send("Name and Department are required.");
     }
 
-    const sql = 'INSERT INTO employees (name, department, salary) VALUES (?, ?, ?)';
-    const params = [name, department, parseFloat(salary) || 0];
+    const sql = 'INSERT INTO employees (name, department, salary, email) VALUES (?, ?, ?, ?)';
+    const params = [name, department, parseFloat(salary) || 0, email || null];
 
     db.run(sql, params, function(err) {
         if (err) {
@@ -48,15 +48,15 @@ app.post('/add', (req, res) => {
 // 3. UPDATE: Edit an existing employee (U)
 app.post('/update/:id', (req, res) => {
     const id = req.params.id;
-    const { name, department, salary } = req.body;
+    const { name, department, salary, email } = req.body;
 
     // Basic validation
     if (!name || !department) {
         return res.status(400).send("Name and Department are required for update.");
     }
     
-    const sql = 'UPDATE employees SET name = ?, department = ?, salary = ? WHERE id = ?';
-    const params = [name, department, parseFloat(salary) || 0, id];
+    const sql = 'UPDATE employees SET name = ?, department = ?, salary = ?, email = ? WHERE id = ?';
+    const params = [name, department, parseFloat(salary) || 0, email || null, id];
 
     db.run(sql, params, function(err) {
         if (err) {
@@ -90,7 +90,11 @@ app.post('/delete/:id', (req, res) => {
 });
 
 
-// Start server
-app.listen(port, () => {
-    console.log(`Server running at http://localhost:${port}`);
-});
+// Start server only when run directly (not during tests)
+if (require.main === module) {
+    app.listen(port, () => {
+        console.log(`Server running at http://localhost:${port}`);
+    });
+}
+
+module.exports = app;

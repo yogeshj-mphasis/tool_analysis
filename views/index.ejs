@@ -29,6 +29,7 @@
         <input type="text" name="name" placeholder="Name" required>
         <input type="text" name="department" placeholder="Department" required>
         <input type="number" name="salary" placeholder="Salary (e.g., 50000.00)">
+        <input type="email" name="email" placeholder="Email (e.g., jane@company.com)">
         <button type="submit">💾 Add Employee</button>
     </form>
 
@@ -41,6 +42,7 @@
                 <th>Name</th>
                 <th>Department</th>
                 <th>Salary</th>
+                <th>Email</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -51,6 +53,7 @@
                     <td class="name-display"><%= employee.name %></td>
                     <td class="dept-display"><%= employee.department %></td>
                     <td class="salary-display">$<%= employee.salary ? employee.salary.toFixed(2) : 'N/A' %></td>
+                    <td class="email-display"><%= employee.email || 'N/A' %></td>
                     <td class="actions">
                         <button class="edit-toggle-btn" 
                                 onclick="toggleEdit('<%= employee.id %>')">✏️ Edit</button>
@@ -64,11 +67,12 @@
                 
                 <tr id="edit-form-row-<%= employee.id %>" style="display: none;" class="edit-row">
                     <td></td>
-                    <td colspan="4">
+                    <td colspan="5">
                         <form action="/update/<%= employee.id %>" method="POST" class="edit-form">
                             <input type="text" name="name" value="<%= employee.name %>" required>
                             <input type="text" name="department" value="<%= employee.department %>" required>
                             <input type="number" name="salary" value="<%= employee.salary %>" step="0.01" placeholder="Salary">
+                            <input type="email" name="email" value="<%= employee.email %>" placeholder="Email">
                             <button type="submit">✅ Save Changes</button>
                             <button type="button" onclick="toggleEdit('<%= employee.id %>')" 
                                     style="background-color: #6c757d;">Candel</button>
@@ -78,7 +82,7 @@
             <% }); %>
             <% if (employees.length === 0) { %>
                 <tr>
-                    <td colspan="5" style="text-align: center;">No employees found. Add one above!</td>
+                    <td colspan="6" style="text-align: center;">No employees found. Add one above!</td>
                 </tr>
             <% } %>
         </tbody>
