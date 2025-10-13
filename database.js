@@ -21,6 +21,23 @@ let db = new sqlite3.Database(DB_SOURCE, (err) => {
                 console.error("Table creation error: " + err.message);
             } else {
                 console.log('Employees table created or already exists.');
+                // Ensure 'email' column exists; add it if missing for backward compatibility
+                db.all("PRAGMA table_info(employees)", [], (infoErr, columns) => {
+                    if (infoErr) {
+                        console.error("Failed to read table info: " + infoErr.message);
+                        return;
+                    }
+                    const hasEmailColumn = columns.some((column) => column.name === 'email');
+                    if (!hasEmailColumn) {
+                        db.run("ALTER TABLE employees ADD COLUMN email TEXT", (alterErr) => {
+                            if (alterErr) {
+                                console.error("Failed to add email column: " + alterErr.message);
+                            } else {
+                                console.log("Added 'email' column to employees table.");
+                            }
+                        });
+                    }
+                });
             }
         });
     }
