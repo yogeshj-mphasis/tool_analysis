@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Employee CRUD App</title>
+    <style>
+        body { font-family: sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        h1, h2 { text-align: center; }
+        /* Form Styling */
+        .add-form, .edit-form { border: 1px solid #ccc; padding: 15px; margin-bottom: 20px; border-radius: 5px; display: flex; flex-wrap: wrap; gap: 10px; }
+        .add-form input, .edit-form input { flex: 1 1 150px; padding: 8px; border: 1px solid #ddd; border-radius: 3px; }
+        .add-form button, .edit-form button { padding: 8px 15px; background-color: #28a745; color: white; border: none; border-radius: 3px; cursor: pointer; }
+        /* Table Styling */
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .actions button { padding: 5px 10px; border-radius: 3px; cursor: pointer; margin-left: 5px; }
+        .delete-btn { background-color: #dc3545; color: white; border: none; }
+        .edit-toggle-btn { background-color: #ffc107; color: #333; border: none; }
+        /* Edit Row Styling */
+        .edit-row { background-color: #fff3cd; }
+    </style>
+</head>
+<body>
+    <h1>Employee Management (CRUD)</h1>
+    
+    <h2>Add New Employee</h2>
+    <form action="/add" method="POST" class="add-form">
+        <input type="text" name="name" placeholder="Name" required>
+        <input type="text" name="department" placeholder="Department" required>
+        <input type="number" name="salary" placeholder="Salary (e.g., 50000.00)">
+        <button type="submit">💾 Add Employee</button>
+    </form>
+
+    <h2>Current Employees (<%= employees.length %>)</h2>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Department</th>
+                <th>Salary</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% employees.forEach(function(employee) { %>
+                <tr id="employee-row-<%= employee.id %>">
+                    <td><%= employee.id %></td>
+                    <td class="name-display"><%= employee.name %></td>
+                    <td class="dept-display"><%= employee.department %></td>
+                    <td class="salary-display">$<%= employee.salary ? employee.salary.toFixed(2) : 'N/A' %></td>
+                    <td class="actions">
+                        <button class="edit-toggle-btn" 
+                                onclick="toggleEdit('<%= employee.id %>')">✏️ Edit</button>
+                        
+                        <form action="/delete/<%= employee.id %>" method="POST" style="display: inline;">
+                            <button type="submit" class="delete-btn" 
+                                    onclick="return confirm('Delete <%= employee.name %>?');">❌ Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                
+                <tr id="edit-form-row-<%= employee.id %>" style="display: none;" class="edit-row">
+                    <td></td>
+                    <td colspan="4">
+                        <form action="/update/<%= employee.id %>" method="POST" class="edit-form">
+                            <input type="text" name="name" value="<%= employee.name %>" required>
+                            <input type="text" name="department" value="<%= employee.department %>" required>
+                            <input type="number" name="salary" value="<%= employee.salary %>" step="0.01" placeholder="Salary">
+                            <button type="submit">✅ Save Changes</button>
+                            <button type="button" onclick="toggleEdit('<%= employee.id %>')" 
+                                    style="background-color: #6c757d;">Candel</button>
+                        </form>
+                    </td>
+                </tr>
+            <% }); %>
+            <% if (employees.length === 0) { %>
+                <tr>
+                    <td colspan="5" style="text-align: center;">No employees found. Add one above!</td>
+                </tr>
+            <% } %>
+        </tbody>
+    </table>
+
+    <script>
+        // Simple JavaScript function to show/hide the edit form
+        function toggleEdit(id) {
+            const editRow = document.getElementById(`edit-form-row-${id}`);
+            if (editRow.style.display === 'none') {
+                editRow.style.display = 'table-row';
+            } else {
+                editRow.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
