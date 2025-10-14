@@ -7,5 +7,3 @@ Add a new field email to the Employee model . Update all CRUD operations and for
 Generate Jest + Supertest cases for all Employee CRUD APIs. Write tests in tests/employee.test.js and explain how to execute them.
 
 Review server.js and routes for code improvements and best practices in Express.js
-
-RR9nUba1UqKsT3BlbkFJNXFZQYFRKmmwE9dJGbIVIQzatcH-ZduvOUn8cFvgDVRmzcePHRHaytfYjnCkikJhOmo8pm8LwA
