@@ -15,7 +15,8 @@ let db = new sqlite3.Database(DB_SOURCE, (err) => {
             name TEXT NOT NULL,
             email TEXT,
             department TEXT,
-            salary REAL
+            salary REAL,
+            mobile_no TEXT
         )`,
         (err) => {
             if (err) {
