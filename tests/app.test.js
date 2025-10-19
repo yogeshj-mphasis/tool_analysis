@@ -14,11 +14,11 @@ afterAll((done) => {
 
 // ============ TEST SUITES ============
 
-describe('Employee CRUD API Tests', () => {
-    
+describe('Application CRUD API Tests', () => {
+
     // ========== CREATE Tests ==========
     describe('POST /add - Create Employee', () => {
-        
+
         test('should create a new employee with all fields', async () => {
             const response = await request(app)
                 .post('/add')
@@ -28,13 +28,13 @@ describe('Employee CRUD API Tests', () => {
                     department: 'Engineering',
                     salary: 75000
                 });
-            
+
             expect(response.status).toBe(201);
             expect(response.body).toHaveProperty('id');
             expect(response.body).toHaveProperty('message');
             expect(response.body.id).toBe(1);
         });
-        
+
         test('should create employee without optional email', async () => {
             const response = await request(app)
                 .post('/add')
@@ -43,12 +43,12 @@ describe('Employee CRUD API Tests', () => {
                     department: 'Marketing',
                     salary: 65000
                 });
-            
+
             expect(response.status).toBe(201);
             expect(response.body).toHaveProperty('id');
             expect(response.body.id).toBeGreaterThan(0);
         });
-        
+
         test('should create employee without optional salary', async () => {
             const response = await request(app)
                 .post('/add')
@@ -57,12 +57,12 @@ describe('Employee CRUD API Tests', () => {
                     email: 'bob@example.com',
                     department: 'Sales'
                 });
-            
+
             expect(response.status).toBe(201);
             expect(response.body).toHaveProperty('id');
             expect(response.body.id).toBeGreaterThan(0);
         });
-        
+
         test('should return 400 if name is missing', async () => {
             const response = await request(app)
                 .post('/add')
@@ -70,11 +70,11 @@ describe('Employee CRUD API Tests', () => {
                     department: 'HR',
                     salary: 50000
                 });
-            
+
             expect(response.status).toBe(400);
             expect(response.body.error).toContain('Name and Department are required');
         });
-        
+
         test('should return 400 if department is missing', async () => {
             const response = await request(app)
                 .post('/add')
@@ -82,23 +82,23 @@ describe('Employee CRUD API Tests', () => {
                     name: 'Alice Brown',
                     salary: 80000
                 });
-            
+
             expect(response.status).toBe(400);
             expect(response.body.error).toContain('Name and Department are required');
         });
     });
-    
+
     // ========== READ Tests ==========
     describe('GET / - Read Employees', () => {
-        
+
         test('should return empty array when no employees exist', async () => {
             const response = await request(app).get('/');
-            
+
             expect(response.status).toBe(200);
             expect(response.body).toHaveProperty('employees');
             expect(response.body.employees).toEqual([]);
         });
-        
+
         test('should return all employees', async () => {
             // Add test employees
             await request(app).post('/add').send({
@@ -107,38 +107,38 @@ describe('Employee CRUD API Tests', () => {
                 department: 'IT',
                 salary: 70000
             });
-            
+
             await request(app).post('/add').send({
                 name: 'Employee 2',
                 email: 'emp2@example.com',
                 department: 'Finance',
                 salary: 80000
             });
-            
+
             const response = await request(app).get('/');
-            
+
             expect(response.status).toBe(200);
             expect(response.body.employees).toHaveLength(2);
             expect(response.body.employees[0].name).toBe('Employee 2'); // DESC order
             expect(response.body.employees[1].name).toBe('Employee 1');
         });
-        
+
         test('should return employees in DESC order by id', async () => {
             await request(app).post('/add').send({ name: 'First', department: 'A' });
             await request(app).post('/add').send({ name: 'Second', department: 'B' });
             await request(app).post('/add').send({ name: 'Third', department: 'C' });
-            
+
             const response = await request(app).get('/');
-            
+
             expect(response.body.employees[0].name).toBe('Third');
             expect(response.body.employees[1].name).toBe('Second');
             expect(response.body.employees[2].name).toBe('First');
         });
     });
-    
+
     // ========== UPDATE Tests ==========
     describe('POST /update/:id - Update Employee', () => {
-        
+
         test('should update employee with all fields', async () => {
             // Create employee first
             const createRes = await request(app).post('/add').send({
@@ -147,9 +147,9 @@ describe('Employee CRUD API Tests', () => {
                 department: 'Original Dept',
                 salary: 50000
             });
-            
+
             const employeeId = createRes.body.id;
-            
+
             // Update employee
             const updateRes = await request(app)
                 .post(`/update/${employeeId}`)
@@ -159,11 +159,11 @@ describe('Employee CRUD API Tests', () => {
                     department: 'Updated Dept',
                     salary: 60000
                 });
-            
+
             expect(updateRes.status).toBe(200);
             expect(updateRes.body.message).toContain('updated');
             expect(updateRes.body.changes).toBe(1);
-            
+
             // Verify update
             const getRes = await request(app).get('/');
             const employee = getRes.body.employees[0];
@@ -172,16 +172,16 @@ describe('Employee CRUD API Tests', () => {
             expect(employee.department).toBe('Updated Dept');
             expect(employee.salary).toBe(60000);
         });
-        
+
         test('should update employee and clear email', async () => {
             const createRes = await request(app).post('/add').send({
                 name: 'Test User',
                 email: 'test@example.com',
                 department: 'Testing'
             });
-            
+
             const employeeId = createRes.body.id;
-            
+
             const updateRes = await request(app)
                 .post(`/update/${employeeId}`)
                 .send({
@@ -189,47 +189,47 @@ describe('Employee CRUD API Tests', () => {
                     email: '',
                     department: 'Testing'
                 });
-            
+
             expect(updateRes.status).toBe(200);
-            
+
             const getRes = await request(app).get('/');
             expect(getRes.body.employees[0].email).toBeNull();
         });
-        
+
         test('should return 400 if name is missing in update', async () => {
             const createRes = await request(app).post('/add').send({
                 name: 'Test',
                 department: 'Test Dept'
             });
-            
+
             const updateRes = await request(app)
                 .post(`/update/${createRes.body.id}`)
                 .send({
                     department: 'New Dept',
                     salary: 55000
                 });
-            
+
             expect(updateRes.status).toBe(400);
             expect(updateRes.body.error).toContain('Name and Department are required');
         });
-        
+
         test('should return 400 if department is missing in update', async () => {
             const createRes = await request(app).post('/add').send({
                 name: 'Test',
                 department: 'Test Dept'
             });
-            
+
             const updateRes = await request(app)
                 .post(`/update/${createRes.body.id}`)
                 .send({
                     name: 'Updated Name',
                     salary: 55000
                 });
-            
+
             expect(updateRes.status).toBe(400);
             expect(updateRes.body.error).toContain('Name and Department are required');
         });
-        
+
         test('should return 404 when updating non-existent employee', async () => {
             const response = await request(app)
                 .post('/update/999')
@@ -238,62 +238,62 @@ describe('Employee CRUD API Tests', () => {
                     department: 'Nowhere',
                     salary: 0
                 });
-            
+
             expect(response.status).toBe(404);
             expect(response.body.message).toContain('No employee found');
         });
     });
-    
+
     // ========== DELETE Tests ==========
     describe('POST /delete/:id - Delete Employee', () => {
-        
+
         test('should delete an existing employee', async () => {
             // Create employee
             const createRes = await request(app).post('/add').send({
                 name: 'To Be Deleted',
                 department: 'Temporary'
             });
-            
+
             const employeeId = createRes.body.id;
-            
+
             // Delete employee
             const deleteRes = await request(app).post(`/delete/${employeeId}`);
-            
+
             expect(deleteRes.status).toBe(200);
             expect(deleteRes.body.message).toContain('deleted');
             expect(deleteRes.body.changes).toBe(1);
-            
+
             // Verify deletion
             const getRes = await request(app).get('/');
             expect(getRes.body.employees).toHaveLength(0);
         });
-        
+
         test('should return 404 when deleting non-existent employee', async () => {
             const response = await request(app).post('/delete/999');
-            
+
             expect(response.status).toBe(404);
             expect(response.body.message).toContain('No employee found');
         });
-        
+
         test('should delete correct employee from multiple records', async () => {
             // Create 3 employees
             await request(app).post('/add').send({ name: 'Emp 1', department: 'A' });
             const emp2 = await request(app).post('/add').send({ name: 'Emp 2', department: 'B' });
             await request(app).post('/add').send({ name: 'Emp 3', department: 'C' });
-            
+
             // Delete middle employee
             await request(app).post(`/delete/${emp2.body.id}`);
-            
+
             // Verify only 2 remain
             const getRes = await request(app).get('/');
             expect(getRes.body.employees).toHaveLength(2);
             expect(getRes.body.employees.find(e => e.name === 'Emp 2')).toBeUndefined();
         });
     });
-    
+
     // ========== Integration Tests ==========
     describe('Full CRUD Workflow Integration', () => {
-        
+
         test('should perform complete CRUD cycle', async () => {
             // 1. CREATE
             const createRes = await request(app).post('/add').send({
@@ -304,12 +304,12 @@ describe('Employee CRUD API Tests', () => {
             });
             expect(createRes.status).toBe(201);
             const employeeId = createRes.body.id;
-            
+
             // 2. READ
             let getRes = await request(app).get('/');
             expect(getRes.body.employees).toHaveLength(1);
             expect(getRes.body.employees[0].name).toBe('Integration Test User');
-            
+
             // 3. UPDATE
             const updateRes = await request(app)
                 .post(`/update/${employeeId}`)
@@ -320,16 +320,16 @@ describe('Employee CRUD API Tests', () => {
                     salary: 75000
                 });
             expect(updateRes.status).toBe(200);
-            
+
             // Verify update
             getRes = await request(app).get('/');
             expect(getRes.body.employees[0].name).toBe('Updated Integration User');
             expect(getRes.body.employees[0].salary).toBe(75000);
-            
+
             // 4. DELETE
             const deleteRes = await request(app).post(`/delete/${employeeId}`);
             expect(deleteRes.status).toBe(200);
-            
+
             // Verify deletion
             getRes = await request(app).get('/');
             expect(getRes.body.employees).toHaveLength(0);
