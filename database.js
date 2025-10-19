@@ -15,13 +15,31 @@ let db = new sqlite3.Database(DB_SOURCE, (err) => {
             name TEXT NOT NULL,
             email TEXT,
             department TEXT,
-            salary REAL
+            salary REAL,
+            mobile TEXT
         )`,
         (err) => {
             if (err) {
                 console.error("Table creation error: " + err.message);
             } else {
                 console.log('Employees table created or already exists.');
+                // Ensure 'mobile' column exists for existing databases without it
+                db.all("PRAGMA table_info(employees)", [], (pragmaErr, columns) => {
+                    if (pragmaErr) {
+                        console.error("PRAGMA error: " + pragmaErr.message);
+                        return;
+                    }
+                    const hasMobileColumn = Array.isArray(columns) && columns.some((column) => column.name === 'mobile');
+                    if (!hasMobileColumn) {
+                        db.run("ALTER TABLE employees ADD COLUMN mobile TEXT", (alterErr) => {
+                            if (alterErr) {
+                                console.error("Add column error: " + alterErr.message);
+                            } else {
+                                console.log("Added 'mobile' column to employees table.");
+                            }
+                        });
+                    }
+                });
             }
         });
     }

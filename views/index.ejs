@@ -30,6 +30,7 @@
         <input type="email" name="email" placeholder="Email">
         <input type="text" name="department" placeholder="Department" required>
         <input type="number" name="salary" placeholder="Salary (e.g., 50000.00)">
+        <input type="tel" name="mobile" placeholder="Mobile (e.g., +1 555-123-4567)">
         <button type="submit">💾 Add Employee</button>
     </form>
 
@@ -43,6 +44,7 @@
                 <th>Email</th>
                 <th>Department</th>
                 <th>Salary</th>
+                <th>Mobile</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -54,6 +56,7 @@
                     <td class="email-display"><%= employee.email || 'N/A' %></td>
                     <td class="dept-display"><%= employee.department %></td>
                     <td class="salary-display">$<%= employee.salary ? employee.salary.toFixed(2) : 'N/A' %></td>
+                    <td class="mobile-display"><%= employee.mobile || 'N/A' %></td>
                     <td class="actions">
                         <button class="edit-toggle-btn" 
                                 onclick="toggleEdit('<%= employee.id %>')">✏️ Edit</button>
@@ -73,6 +76,7 @@
                             <input type="email" name="email" value="<%= employee.email || '' %>" placeholder="Email">
                             <input type="text" name="department" value="<%= employee.department %>" required>
                             <input type="number" name="salary" value="<%= employee.salary %>" step="0.01" placeholder="Salary">
+                            <input type="tel" name="mobile" value="<%= employee.mobile || '' %>" placeholder="Mobile">
                             <button type="submit">✅ Save Changes</button>
                             <button type="button" onclick="toggleEdit('<%= employee.id %>')" 
                                     style="background-color: #6c757d;">Candel</button>

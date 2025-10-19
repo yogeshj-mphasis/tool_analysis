@@ -22,7 +22,8 @@ beforeAll((done) => {
             name TEXT NOT NULL,
             email TEXT,
             department TEXT,
-            salary REAL
+            salary REAL,
+            mobile TEXT
         )`, (err) => {
             if (err) return done(err);
             
@@ -46,14 +47,14 @@ beforeAll((done) => {
             
             // CREATE: Add a new employee
             app.post('/add', (req, res) => {
-                const { name, email, department, salary } = req.body;
+                const { name, email, department, salary, mobile } = req.body;
                 
                 if (!name || !department) {
                     return res.status(400).send("Name and Department are required.");
                 }
                 
-                const sql = 'INSERT INTO employees (name, email, department, salary) VALUES (?, ?, ?, ?)';
-                const params = [name, email || null, department, parseFloat(salary) || 0];
+                const sql = 'INSERT INTO employees (name, email, department, salary, mobile) VALUES (?, ?, ?, ?, ?)';
+                const params = [name, email || null, department, parseFloat(salary) || 0, mobile || null];
                 
                 db.run(sql, params, function(err) {
                     if (err) {
@@ -69,14 +70,14 @@ beforeAll((done) => {
             // UPDATE: Edit an existing employee
             app.post('/update/:id', (req, res) => {
                 const id = req.params.id;
-                const { name, email, department, salary } = req.body;
+                const { name, email, department, salary, mobile } = req.body;
                 
                 if (!name || !department) {
                     return res.status(400).send("Name and Department are required for update.");
                 }
                 
-                const sql = 'UPDATE employees SET name = ?, email = ?, department = ?, salary = ? WHERE id = ?';
-                const params = [name, email || null, department, parseFloat(salary) || 0, id];
+                const sql = 'UPDATE employees SET name = ?, email = ?, department = ?, salary = ?, mobile = ? WHERE id = ?';
+                const params = [name, email || null, department, parseFloat(salary) || 0, mobile || null, id];
                 
                 db.run(sql, params, function(err) {
                     if (err) {
@@ -128,13 +129,14 @@ describe('Employee CRUD API Tests', () => {
     describe('POST /add - Create Employee', () => {
         
         test('should create a new employee with all fields', async () => {
-            const response = await request(app)
+                const response = await request(app)
                 .post('/add')
                 .send({
                     name: 'John Doe',
                     email: 'john.doe@example.com',
                     department: 'Engineering',
-                    salary: 75000
+                    salary: 75000,
+                    mobile: '+1 555-000-0000'
                 });
             
             expect(response.status).toBe(201);
@@ -213,14 +215,16 @@ describe('Employee CRUD API Tests', () => {
                 name: 'Employee 1',
                 email: 'emp1@example.com',
                 department: 'IT',
-                salary: 70000
+                salary: 70000,
+                mobile: '+1 555-111-1111'
             });
             
             await request(app).post('/add').send({
                 name: 'Employee 2',
                 email: 'emp2@example.com',
                 department: 'Finance',
-                salary: 80000
+                salary: 80000,
+                mobile: '+1 555-222-2222'
             });
             
             const response = await request(app).get('/');
@@ -232,9 +236,9 @@ describe('Employee CRUD API Tests', () => {
         });
         
         test('should return employees in DESC order by id', async () => {
-            await request(app).post('/add').send({ name: 'First', department: 'A' });
-            await request(app).post('/add').send({ name: 'Second', department: 'B' });
-            await request(app).post('/add').send({ name: 'Third', department: 'C' });
+            await request(app).post('/add').send({ name: 'First', department: 'A', mobile: '+1 555-101-0101' });
+            await request(app).post('/add').send({ name: 'Second', department: 'B', mobile: '+1 555-202-0202' });
+            await request(app).post('/add').send({ name: 'Third', department: 'C', mobile: '+1 555-303-0303' });
             
             const response = await request(app).get('/');
             
@@ -265,7 +269,8 @@ describe('Employee CRUD API Tests', () => {
                     name: 'Updated Name',
                     email: 'updated@example.com',
                     department: 'Updated Dept',
-                    salary: 60000
+                    salary: 60000,
+                    mobile: '+1 555-999-9999'
                 });
             
             expect(updateRes.status).toBe(200);
@@ -285,7 +290,8 @@ describe('Employee CRUD API Tests', () => {
             const createRes = await request(app).post('/add').send({
                 name: 'Test User',
                 email: 'test@example.com',
-                department: 'Testing'
+                department: 'Testing',
+                mobile: '+1 555-111-2222'
             });
             
             const employeeId = createRes.body.id;
@@ -295,7 +301,8 @@ describe('Employee CRUD API Tests', () => {
                 .send({
                     name: 'Test User',
                     email: '',
-                    department: 'Testing'
+                    department: 'Testing',
+                    mobile: ''
                 });
             
             expect(updateRes.status).toBe(200);
@@ -344,7 +351,8 @@ describe('Employee CRUD API Tests', () => {
                 .send({
                     name: 'Ghost Employee',
                     department: 'Nowhere',
-                    salary: 0
+                    salary: 0,
+                    mobile: '+1 555-000-9999'
                 });
             
             expect(response.status).toBe(404);
@@ -359,7 +367,8 @@ describe('Employee CRUD API Tests', () => {
             // Create employee
             const createRes = await request(app).post('/add').send({
                 name: 'To Be Deleted',
-                department: 'Temporary'
+                department: 'Temporary',
+                mobile: '+1 555-000-1234'
             });
             
             const employeeId = createRes.body.id;
@@ -385,9 +394,9 @@ describe('Employee CRUD API Tests', () => {
         
         test('should delete correct employee from multiple records', async () => {
             // Create 3 employees
-            await request(app).post('/add').send({ name: 'Emp 1', department: 'A' });
-            const emp2 = await request(app).post('/add').send({ name: 'Emp 2', department: 'B' });
-            await request(app).post('/add').send({ name: 'Emp 3', department: 'C' });
+            await request(app).post('/add').send({ name: 'Emp 1', department: 'A', mobile: '+1 555-0101-0101' });
+            const emp2 = await request(app).post('/add').send({ name: 'Emp 2', department: 'B', mobile: '+1 555-0202-0202' });
+            await request(app).post('/add').send({ name: 'Emp 3', department: 'C', mobile: '+1 555-0303-0303' });
             
             // Delete middle employee
             await request(app).post(`/delete/${emp2.body.id}`);
@@ -408,7 +417,8 @@ describe('Employee CRUD API Tests', () => {
                 name: 'Integration Test User',
                 email: 'integration@test.com',
                 department: 'QA',
-                salary: 70000
+                salary: 70000,
+                mobile: '+1 555-777-7777'
             });
             expect(createRes.status).toBe(201);
             const employeeId = createRes.body.id;
@@ -425,7 +435,8 @@ describe('Employee CRUD API Tests', () => {
                     name: 'Updated Integration User',
                     email: 'updated@test.com',
                     department: 'QA',
-                    salary: 75000
+                    salary: 75000,
+                    mobile: '+1 555-888-8888'
                 });
             expect(updateRes.status).toBe(200);
             

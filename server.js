@@ -26,15 +26,15 @@ app.get('/', (req, res) => {
 
 // 2. CREATE: Add a new employee (C)
 app.post('/add', (req, res) => {
-    const { name, email, department, salary } = req.body;
+    const { name, email, department, salary, mobile } = req.body;
     
     // Basic validation
     if (!name || !department) {
         return res.status(400).send("Name and Department are required.");
     }
 
-    const sql = 'INSERT INTO employees (name, email, department, salary) VALUES (?, ?, ?, ?)';
-    const params = [name, email || null, department, parseFloat(salary) || 0];
+    const sql = 'INSERT INTO employees (name, email, department, salary, mobile) VALUES (?, ?, ?, ?, ?)';
+    const params = [name, email || null, department, parseFloat(salary) || 0, mobile || null];
 
     db.run(sql, params, function(err) {
         if (err) {
@@ -48,15 +48,15 @@ app.post('/add', (req, res) => {
 // 3. UPDATE: Edit an existing employee (U)
 app.post('/update/:id', (req, res) => {
     const id = req.params.id;
-    const { name, email, department, salary } = req.body;
+    const { name, email, department, salary, mobile } = req.body;
 
     // Basic validation
     if (!name || !department) {
         return res.status(400).send("Name and Department are required for update.");
     }
     
-    const sql = 'UPDATE employees SET name = ?, email = ?, department = ?, salary = ? WHERE id = ?';
-    const params = [name, email || null, department, parseFloat(salary) || 0, id];
+    const sql = 'UPDATE employees SET name = ?, email = ?, department = ?, salary = ?, mobile = ? WHERE id = ?';
+    const params = [name, email || null, department, parseFloat(salary) || 0, mobile || null, id];
 
     db.run(sql, params, function(err) {
         if (err) {
