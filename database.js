@@ -1,6 +1,6 @@
 // database.js
 const sqlite3 = require('sqlite3').verbose();
-const DB_SOURCE = 'employee.sqlite';
+const DB_SOURCE = process.env.NODE_ENV === 'test' ? ':memory:' : 'employee.sqlite';
 
 // Open or create the database file
 let db = new sqlite3.Database(DB_SOURCE, (err) => {
@@ -8,7 +8,7 @@ let db = new sqlite3.Database(DB_SOURCE, (err) => {
         console.error("Database connection error: " + err.message);
         throw err;
     } else {
-        console.log('Connected to the Employee SQLite database.');
+        console.log(`Connected to the Employee SQLite database (${DB_SOURCE}).`);
         // Create an 'employees' table if it doesn't exist
         db.run(`CREATE TABLE IF NOT EXISTS employees (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
